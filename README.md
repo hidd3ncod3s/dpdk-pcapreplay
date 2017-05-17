@@ -1,2 +1,4 @@
-# dpdk-pcapreplay
-Replay pcaps using DPDK stack
+dpdkpcapreplay
+==============
+
+Based on code example from https://github.com/marty90/DPDK-Replay

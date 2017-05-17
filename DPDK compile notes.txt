@@ -1,0 +1,35 @@
+sudo su -
+apt-get install linux-headers-$(uname -r)
+wget http://dpdk.org/browse/dpdk/snapshot/dpdk-2.2.0.tar.gz
+tar xzf dpdk-2.2.0.tar.gz
+cd dpdk-2.2.0
+export RTE_SDK=$(pwd)
+export RTE_TARGET=x86_64-native-linuxapp-gcc
+make install T=$RTE_TARGET
+cd ..
+git clone https://github.com/marty90/DPDK-Replay
+cd DPDK-Replay
+apt-get install libpcap-dev
+make
+cat /proc/meminfo  | grep -i hugepage
+
+/etc/default/grub
+	GRUB_CMDLINE_LINUX="hugepages=1024"
+update-grub
+mkdir -p /mnt/huge/
+mount -t hugetlbfs nodev /mnt/huge
+
+vi /etc/fstab/
+hugetlbfs       /mnt/huge/      hugetlbfs       rw      0       0
+
+sudo apt-get install cpufrequtils
+sudo cpufreq-set -r -g performance
+
+
+
+
+sudo modprobe uio
+sudo insmod $RTE_SDK/$RTE_TARGET/kmod/igb_uio.ko
+sudo $RTE_SDK/tools/dpdk_nic_bind.py --bind=igb_uio eth1
+
+#sudo $RTE_SDK/tools/dpdk_nic_bind.py --bind=igb_uio $($RTE_SDK/tools/dpdk_nic_bind.py --status | sed -rn 's,.* if=([^ ]*).*igb_uio *$,\1,p')
